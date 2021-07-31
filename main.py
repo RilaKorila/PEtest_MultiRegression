@@ -60,7 +60,7 @@ def main():
 
     st.sidebar.markdown('## ページ切り替え')
     # --- page選択ラジオボタン
-    page = st.sidebar.radio('ページ選択', ('データ可視化', 'データ確認', '単回帰'))
+    page = st.sidebar.radio('ページ選択', ('データ可視化', 'データ確認', '単回帰分析'))
 
     # --- page振り分け
     if page == 'データ可視化':
@@ -69,7 +69,7 @@ def main():
     elif page == 'データ確認':
         st.session_state.page = 'table'
         table()
-    elif page == '単回帰':
+    elif page == '単回帰分析':
         st.session_state.page = 'lr'
         lr()
 
@@ -289,8 +289,8 @@ def  lr():
             model_lr.fit(X, y)
 
             # 結果の出力
-            st.write('モデル関数の回帰変数 w1: %.3f' %model_lr.coef_)
-            st.write('モデル関数の切片 w2: %.3f' %model_lr.intercept_)
+            # st.write('モデル関数の回帰変数 w1: %.3f' %model_lr.coef_)
+            # st.write('モデル関数の切片 w2: %.3f' %model_lr.intercept_)
             st.write('y= %.3fx + %.3f' % (model_lr.coef_ , model_lr.intercept_))
             st.write('決定係数 R^2： ', model_lr.score(X, y))
 
@@ -298,7 +298,7 @@ def  lr():
             vis_check = st.checkbox("グラフで確認する", value=False)
             # checkつけた後にもういちどsubmit押す必要あり
             if vis_check:
-                st.write('Checked')
+                # st.write('Checked')
                 st.session_state.vis_check = True
 
     # st.session_state
