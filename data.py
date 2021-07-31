@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-score = pd.read_csv('./data/score.csv')
+score = pd.read_csv('./data/score_0nan.csv')
 
 names = ['学年','性別','身長','体重','座高','握力',
 '上体起こし','長座体前屈','反復横跳び','シャトルラン','50ｍ走','立ち幅跳び','ハンドボール投げ',
@@ -30,7 +30,15 @@ def get_full_data():
 
 
 def get_corrcoef(data, x_label, y_label):
-    cor = np.corrcoef(data[x_label].values, data[y_label].values)
-    print(data[y_label].values)
-    return np.round(cor[0,1], 3)
+    cor = np.corrcoef(data[x_label], data[y_label])
 
+    return cor[0,1].round(4)
+
+def pick_up_df(df, genre):
+    ans = pd.DataFrame()
+
+    for elem in genre:
+        grarde = elem[0:2]
+        gender = elem[2]
+        ans = ans.append(df[(df['学年'] == grarde) & (df['性別'] == gender)])
+    
