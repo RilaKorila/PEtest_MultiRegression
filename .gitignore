@@ -1,0 +1,5 @@
+# cache
+/__pycache__/
+
+# sub page
+page2.py
