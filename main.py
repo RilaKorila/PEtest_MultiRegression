@@ -3,6 +3,7 @@ import data
 import pandas as pd
 import plotly.express as px
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 
 st.set_page_config(
@@ -275,9 +276,12 @@ def  lr():
         y_label = st.selectbox('予測したい変数(目的変数)', label)
         x_label = st.selectbox('予測に使いたい変数(説明変数)', label)
         
-        
-        y = df[[y_label]]
-        X = df[[x_label]]
+        df_train, df_test = data.split_train_test(df)
+        y_train = df_train[[y_label]]
+        y_test = df_test[[y_label]]
+        X_train = df_train[[x_label]]
+        X_test = df_test[[x_label]]
+
         submitted = st.form_submit_button("分析スタート")
         
         if not 'vis_check' in st.session_state:
@@ -286,13 +290,20 @@ def  lr():
         if submitted:
             # モデルの構築
             model_lr = LinearRegression()
-            model_lr.fit(X, y)
+            model_lr.fit(X_train, y_train)
+            y_pred = model_lr.predict(X_test)
+            st.write(y_pred)
+            st.write(y_test)
 
             # 結果の出力
             # st.write('モデル関数の回帰変数 w1: %.3f' %model_lr.coef_)
             # st.write('モデル関数の切片 w2: %.3f' %model_lr.intercept_)
-            st.write('y= %.3fx + %.3f' % (model_lr.coef_ , model_lr.intercept_))
-            st.write('決定係数 R^2： ', model_lr.score(X, y))
+            if model_lr.intercept_ < 0:
+                st.write('y= %.3fx - %.3f' % (model_lr.coef_ , -1*(model_lr.intercept_)))
+            else:
+                st.write('y= %.3fx + %.3f' % (model_lr.coef_ , model_lr.intercept_))
+
+            st.write('決定係数 R^2： %.2f' % r2_score(y_test, y_pred))
 
             # グラフ表示するか否か
             vis_check = st.checkbox("グラフで確認する", value=False)

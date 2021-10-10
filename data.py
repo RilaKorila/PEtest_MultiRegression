@@ -38,7 +38,14 @@ def pick_up_df(df, genre):
     ans = pd.DataFrame()
 
     for elem in genre:
-        grarde = elem[0:2]
+        grade = elem[0:2]
         gender = elem[2]
-        ans = ans.append(df[(df['学年'] == grarde) & (df['性別'] == gender)])
-    
+        ans = ans.append(df[(df['学年'] == grade) & (df['性別'] == gender)])
+
+# scoreでの高1女子のデータ：409~589
+# テストデータは、ここから20件とる
+def split_train_test(df):
+    # 加工を加えない生データ score
+    test = df.iloc[500: 521,:]
+    train  = pd.concat([df.iloc[:500, :], df.iloc[521:, :] ])
+    return train, test
