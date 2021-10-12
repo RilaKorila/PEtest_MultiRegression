@@ -1,5 +1,5 @@
 import streamlit as st
-import data
+import data as d
 import pandas as pd
 import plotly.express as px
 from sklearn.linear_model import LinearRegression
@@ -7,23 +7,16 @@ from sklearn.metrics import r2_score
 
 
 st.set_page_config(
-    # page_title="PE Score Analysis App",
+    page_title="PE Score Analysis App",
     # page_icon="🧊",
     layout="wide",
     # initial_sidebar_state="collapsed",
     initial_sidebar_state="expanded",
     )
 
-names = ['学年','性別','身長','体重','座高','握力',
-'上体起こし','長座体前屈','反復横跳び','シャトルラン','50ｍ走','立ち幅跳び','ハンドボール投げ',
-'握力得点','上体起こし得点','長座体前屈得点','反復横跳び得点','シャトルラン得点','50ｍ走得点',
-'立ち幅跳び得点','ハンドボール投げ得点']
-
-DATA_SOURCE = './data/score_0nan.csv'
-
 @st.cache
 def load_full_data():
-    data = pd.read_csv(DATA_SOURCE)
+    data = pd.read_csv(d.DATA_SOURCE)
     # data['date'] = pd.to_datetime(data['date'])
     # data['Size'] = data['size'].apply(lambda x: f'{x:.0f} sqm')
     # data['Price'] = data['price'].apply(lambda x: f'CHF {x:.0f}')
@@ -31,26 +24,10 @@ def load_full_data():
 
 @st.cache 
 def load_num_data():
-    data = pd.read_csv(DATA_SOURCE)
+    data = pd.read_csv(d.DATA_SOURCE)
     rows = ['学年', '性別']
     data = data.drop(rows, axis=1)
     return data
-
-@st.cache 
-def load_filtered_data(data, genre_filter):
-    # 数値でフィルター(何点以上)
-    # filtered_data = data[data['num_rooms'].between(rooms_filter[0], rooms_filter[1])]
-    grade_filter = []
-    gender_filter = []
-    for elem in genre_filter:
-        grade_filter.append(str(elem[0:2]))
-        gender_filter.append(str(elem[2]))
-
-    filtered_data = data[data['学年'].isin(grade_filter)]
-    filtered_data = filtered_data[filtered_data['性別'].isin(gender_filter)]
-
-    return filtered_data
-    
 
 
 def main():
@@ -122,7 +99,7 @@ def vis():
                 )
         st.plotly_chart(fig, use_container_width=True)
 
-        cor = data.get_corrcoef(score, x_label, y_label)
+        cor = d.get_corrcoef(score, x_label, y_label)
         st.write('相関係数：' + str(cor))
 
         
@@ -193,7 +170,7 @@ def vis2():
                 )
         st.plotly_chart(fig, use_container_width=True)
 
-        cor = data.get_corrcoef(score, x_label, y_label)
+        cor = d.get_corrcoef(score, x_label, y_label)
         st.write('相関係数：' + str(cor))
 
     # ヒストグラム
@@ -236,7 +213,7 @@ def sub_table():
         ['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子']
     )
 
-    st.session_state.table_df = data.pick_up_df(tmp, genre)
+    st.session_state.table_df = d.pick_up_df(tmp, genre)
 
 def table():
     st.title('データの統計情報を確認しよう')
@@ -249,8 +226,8 @@ def table():
 
     genre_options = ['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子']
     genre_filter = st.multiselect('Genre',genre_options, default=['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子'])
-
-    filtered_data = load_filtered_data(data, genre_filter)
+    filtered_data = d.load_filtered_data(data, genre_filter)
+    st.write('データの件数： '+  str(len(filtered_data)) + "件")
     st.dataframe(filtered_data.style.highlight_max(axis=0))
     avg = filtered_data['立ち幅跳び'].mean()
     med = filtered_data['立ち幅跳び'].median()
@@ -276,7 +253,7 @@ def  lr():
         y_label = st.selectbox('予測したい変数(目的変数)', label)
         x_label = st.selectbox('予測に使いたい変数(説明変数)', label)
         
-        df_train, df_test = data.split_train_test(df)
+        df_train, df_test = d.split_train_test(df)
         y_train = df_train[[y_label]]
         y_test = df_test[[y_label]]
         X_train = df_train[[x_label]]
@@ -292,12 +269,8 @@ def  lr():
             model_lr = LinearRegression()
             model_lr.fit(X_train, y_train)
             y_pred = model_lr.predict(X_test)
-            st.write(y_pred)
-            st.write(y_test)
 
             # 結果の出力
-            # st.write('モデル関数の回帰変数 w1: %.3f' %model_lr.coef_)
-            # st.write('モデル関数の切片 w2: %.3f' %model_lr.intercept_)
             if model_lr.intercept_ < 0:
                 st.write('y= %.3fx - %.3f' % (model_lr.coef_ , -1*(model_lr.intercept_)))
             else:
@@ -309,7 +282,6 @@ def  lr():
             vis_check = st.checkbox("グラフで確認する", value=False)
             # checkつけた後にもういちどsubmit押す必要あり
             if vis_check:
-                # st.write('Checked')
                 st.session_state.vis_check = True
 
     # st.session_state
@@ -326,14 +298,6 @@ def  lr():
         #     trendline='ols')
         st.plotly_chart(fig, use_container_width=True)
        
-# menu = st.sidebar.selectbox(
-#     '何をする？',
-#     ['ここから選ぼう','散布図を表示']
-# )
-
-# 風船とぶ、
-# st.balloons()
-
 # 待たせられる
 # with st.spinner('Wait for it...'):
 #     time.sleep(5)

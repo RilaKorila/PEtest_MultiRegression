@@ -1,12 +1,9 @@
 import pandas as pd
 import numpy as np
 
-score = pd.read_csv('./data/score_0nan.csv')
 
-names = ['学年','性別','身長','体重','座高','握力',
-'上体起こし','長座体前屈','反復横跳び','シャトルラン','50ｍ走','立ち幅跳び','ハンドボール投げ',
-'握力得点','上体起こし得点','長座体前屈得点','反復横跳び得点','シャトルラン得点','50ｍ走得点',
-'立ち幅跳び得点','ハンドボール投げ得点']
+DATA_SOURCE = './data/score_0nan_small.csv'
+score = pd.read_csv(DATA_SOURCE)
 
 def get_num_data():
     tmp = score
@@ -49,3 +46,18 @@ def split_train_test(df):
     test = df.iloc[500: 521,:]
     train  = pd.concat([df.iloc[:500, :], df.iloc[521:, :] ])
     return train, test
+
+# ジャンルに応じてデータをフィルタリングして返す
+def load_filtered_data(data, genre_filter):
+    # 数値でフィルター(何点以上)
+    # filtered_data = data[data['num_rooms'].between(rooms_filter[0], rooms_filter[1])]
+    grade_filter = []
+    gender_filter = []
+    for elem in genre_filter:
+        grade_filter.append(str(elem[0:2]))
+        gender_filter.append(str(elem[2]))
+
+    filtered_data = data[data['学年'].isin(grade_filter)]
+    filtered_data = filtered_data[filtered_data['性別'].isin(gender_filter)]
+
+    return filtered_data
