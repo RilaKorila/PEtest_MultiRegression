@@ -225,20 +225,27 @@ def table():
     st.subheader('Choose filters')
 
     genre_options = ['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子']
-    genre_filter = st.multiselect('Genre',genre_options, default=['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子'])
+    genre_filter = st.multiselect('Genre',genre_options, default=genre_options)
     filtered_data = d.load_filtered_data(data, genre_filter)
     st.write('データの件数： '+  str(len(filtered_data)) + "件")
-    st.dataframe(filtered_data.style.highlight_max(axis=0))
-    avg = filtered_data['立ち幅跳び'].mean()
-    med = filtered_data['立ち幅跳び'].median()
-    mn = filtered_data['立ち幅跳び'].min()
-    mx = filtered_data['立ち幅跳び'].max()
+    # 重いので全て表示しない
+    st.dataframe(filtered_data[:150].style.highlight_max(axis=0))
 
-    st.markdown("### 「立ち幅跳び」 統計情報")
-    st.markdown(f"- 平均値 {avg:.0f}")
-    st.markdown(f"- 中央値 {med:.0f}")
-    st.markdown(f"- 最小値 {mn:.0f}")
-    st.markdown(f"- 最大値 {mx:.0f}")
+    left, right = st.beta_columns(2)
+
+    with left: # 変数の選択
+        st.write("統計情報を確認")
+        check_val = st.selectbox('確認したい変数を選択',d.names)
+    with right:
+        st.markdown("### 「" + check_val + "」 統計情報")
+        avg = filtered_data[check_val].mean()
+        med = filtered_data[check_val].median()
+        mn = filtered_data[check_val].min()
+        mx = filtered_data[check_val].max()
+        st.markdown(f"- 平均値 {avg:.0f}")
+        st.markdown(f"- 中央値 {med:.0f}")
+        st.markdown(f"- 最小値 {mn:.0f}")
+        st.markdown(f"- 最大値 {mx:.0f}")
 
 
 # ---------------- 単回帰分析 ----------------------------------

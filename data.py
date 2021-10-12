@@ -4,6 +4,7 @@ import numpy as np
 
 DATA_SOURCE = './data/score_0nan_small.csv'
 score = pd.read_csv(DATA_SOURCE)
+names = score.drop(['学年', '性別'], axis=1).columns
 
 def get_num_data():
     tmp = score
