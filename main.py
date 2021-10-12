@@ -38,15 +38,15 @@ def main():
 
     st.sidebar.markdown('## ページ切り替え')
     # --- page選択ラジオボタン
-    page = st.sidebar.radio('ページ選択', ('データ可視化', 'データ確認', '単回帰分析'))
+    page = st.sidebar.radio('ページ選択', ('データ可視化', '単回帰分析'))
 
     # --- page振り分け
     if page == 'データ可視化':
         st.session_state.page = 'vis'
         vis2()
-    elif page == 'データ確認':
-        st.session_state.page = 'table'
-        table()
+    # elif page == 'データ確認':
+    #     st.session_state.page = 'table'
+    #     table()
     elif page == '単回帰分析':
         st.session_state.page = 'lr'
         lr()
@@ -193,59 +193,59 @@ def vis2():
         
 
 
-# ---------------- データ表示 ----------------------------------
-def sub_table():
-    if not 'table_df' in st.session_state:
-        st.session_state.table_df = load_full_data()
+# # ---------------- データ表示 ----------------------------------
+# def sub_table():
+#     if not 'table_df' in st.session_state:
+#         st.session_state.table_df = load_full_data()
 
 
-    # data_load_state = st.text('Loading data...')
-    # data = load_data() でーた取り込む
-    # data_load_state.text("")
-    tmp = st.session_state.table_df
-    st.title('データの統計情報を確認しよう')
-    st.dataframe(tmp.style.highlight_max(axis=0))
+#     # data_load_state = st.text('Loading data...')
+#     # data = load_data() でーた取り込む
+#     # data_load_state.text("")
+#     tmp = st.session_state.table_df
+#     st.title('データの統計情報を確認しよう')
+#     st.dataframe(tmp.style.highlight_max(axis=0))
 
-    # サイドバー
-    st.sidebar.write('属性ごとに表示する')
-    genre = st.sidebar.multiselect(
-        '＊気になる属性を選択しよう',
-        ['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子']
-    )
+#     # サイドバー
+#     st.sidebar.write('属性ごとに表示する')
+#     genre = st.sidebar.multiselect(
+#         '＊気になる属性を選択しよう',
+#         ['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子']
+#     )
 
-    st.session_state.table_df = d.pick_up_df(tmp, genre)
+#     st.session_state.table_df = d.pick_up_df(tmp, genre)
 
-def table():
-    st.title('データの統計情報を確認しよう')
+# def table():
+#     st.title('データの統計情報を確認しよう')
     
-    data_load_state = st.text('Loading data...')
-    data = load_full_data()
-    data_load_state.text("")
+#     data_load_state = st.text('Loading data...')
+#     data = load_full_data()
+#     data_load_state.text("")
 
-    st.subheader('Choose filters')
+#     st.subheader('Choose filters')
 
-    genre_options = ['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子']
-    genre_filter = st.multiselect('Genre',genre_options, default=genre_options)
-    filtered_data = d.load_filtered_data(data, genre_filter)
-    st.write('データの件数： '+  str(len(filtered_data)) + "件")
-    # 重いので全て表示しない
-    st.dataframe(filtered_data[:150].style.highlight_max(axis=0))
+#     genre_options = ['高1女子', '高2女子', '高3女子', '高1男子', '高2男子', '高3男子']
+#     genre_filter = st.multiselect('Genre',genre_options, default=genre_options)
+#     filtered_data = d.load_filtered_data(data, genre_filter)
+#     st.write('データの件数： '+  str(len(filtered_data)) + "件")
+#     # 重いので全て表示しない
+#     st.dataframe(filtered_data[:150].style.highlight_max(axis=0))
 
-    left, right = st.beta_columns(2)
+#     left, right = st.beta_columns(2)
 
-    with left: # 変数の選択
-        st.write("統計情報を確認")
-        check_val = st.selectbox('確認したい変数を選択',d.names)
-    with right:
-        st.markdown("### 「" + check_val + "」 統計情報")
-        avg = filtered_data[check_val].mean()
-        med = filtered_data[check_val].median()
-        mn = filtered_data[check_val].min()
-        mx = filtered_data[check_val].max()
-        st.markdown(f"- 平均値 {avg:.0f}")
-        st.markdown(f"- 中央値 {med:.0f}")
-        st.markdown(f"- 最小値 {mn:.0f}")
-        st.markdown(f"- 最大値 {mx:.0f}")
+#     with left: # 変数の選択
+#         st.write("統計情報を確認")
+#         check_val = st.selectbox('確認したい変数を選択',d.names)
+#     with right:
+#         st.markdown("### 「" + check_val + "」 統計情報")
+#         avg = filtered_data[check_val].mean()
+#         med = filtered_data[check_val].median()
+#         mn = filtered_data[check_val].min()
+#         mx = filtered_data[check_val].max()
+#         st.markdown(f"- 平均値 {avg:.0f}")
+#         st.markdown(f"- 中央値 {med:.0f}")
+#         st.markdown(f"- 最小値 {mn:.0f}")
+#         st.markdown(f"- 最大値 {mx:.0f}")
 
 
 # ---------------- 単回帰分析 ----------------------------------
