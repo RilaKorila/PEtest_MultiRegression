@@ -43,15 +43,12 @@ def split_train_test(df):
 
 # ジャンルに応じてデータをフィルタリングして返す
 def load_filtered_data(data, genre_filter):
-    # 数値でフィルター(何点以上)
-    # filtered_data = data[data['num_rooms'].between(rooms_filter[0], rooms_filter[1])]
-    grade_filter = []
-    gender_filter = []
-    for elem in genre_filter:
-        grade_filter.append(str(elem[0:2]))
-        gender_filter.append(str(elem[2]))
-
-    filtered_data = data[data['学年'].isin(grade_filter)]
-    filtered_data = filtered_data[filtered_data['性別'].isin(gender_filter)]
+    if genre_filter == "女子":
+        filtered_data = data[data['性別'].isin(["女"])]
+    elif genre_filter == "高1女子":
+        filtered_data = data[data['性別'].isin(["女"])]
+        filtered_data = filtered_data[filtered_data['学年'].isin(["高1"])]
+    else:
+        filtered_data = data
 
     return filtered_data
