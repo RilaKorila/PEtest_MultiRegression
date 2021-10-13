@@ -1,36 +1,27 @@
 import pandas as pd
 import numpy as np
 
-
 DATA_SOURCE = './data/score_0nan_small.csv'
 score = pd.read_csv(DATA_SOURCE)
 names = score.drop(['学年', '性別'], axis=1).columns
 
 def get_num_data():
     tmp = score
-
-    # 列順を変える
-    # tmp = tmp.drop(['順位'], axis=1)
-    # tmp.insert(1, '順位', soccer['順位'])
-
-    # # 任意の行をとる
-    # # delete = teams - rows
+    # 任意の行をとる
+    # delete = teams - rows
     rows = ['学年', '性別']
     tmp = tmp.drop(rows, axis=1)
-    
-    # # データの処理はあとでここに書く
-
     return tmp
+
 
 def get_full_data():
     return score
 
 
-
 def get_corrcoef(data, x_label, y_label):
     cor = np.corrcoef(data[x_label], data[y_label])
-
     return cor[0,1].round(4)
+
 
 def pick_up_df(df, genre):
     ans = pd.DataFrame()
@@ -40,6 +31,7 @@ def pick_up_df(df, genre):
         gender = elem[2]
         ans = ans.append(df[(df['学年'] == grade) & (df['性別'] == gender)])
 
+
 # scoreでの高1女子のデータ：409~589
 # テストデータは、ここから20件とる
 def split_train_test(df):
@@ -47,6 +39,7 @@ def split_train_test(df):
     test = df.iloc[500: 521,:]
     train  = pd.concat([df.iloc[:500, :], df.iloc[521:, :] ])
     return train, test
+
 
 # ジャンルに応じてデータをフィルタリングして返す
 def load_filtered_data(data, genre_filter):
