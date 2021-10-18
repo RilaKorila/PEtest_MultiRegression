@@ -4,6 +4,12 @@ import pandas as pd
 import plotly.express as px
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
+from sklearn.metrics import mean_squared_error
+import numpy as np
+
+X_COLS = ['身長', '体重', '座高', '握力', '上体起こし', '長座体前屈', '反復横跳び', 'シャトルラン', '50ｍ走', '立ち幅跳び', 'ハンドボール投げ']
+TEST_START_INDEX = 400
+TEST_END_INDEX = 420
 
 st.set_page_config(
     page_title="PE Score Analysis App",
@@ -45,10 +51,8 @@ def main():
 # ---------------- グラフで可視化 :  各グラフを選択する ----------------------------------
 def vis():
     st.title("体力測定 データ")
-
     score = load_num_data()
     full_data = load_full_data()
-    label = score.columns
 
     st.sidebar.markdown('## いろんなグラフを試してみよう')
 
@@ -62,8 +66,8 @@ def vis():
         left, right = st.beta_columns(2)
 
         with left: # 散布図の表示 
-            x_label = st.selectbox('横軸を選択',label)
-            y_label = st.selectbox('縦軸を選択',label)
+            x_label = st.selectbox('横軸を選択',X_COLS)
+            y_label = st.selectbox('縦軸を選択',X_COLS)
 
         with right: # 色分けオプション            
             coloring = st.radio(
@@ -98,13 +102,13 @@ def vis():
 
     # ヒストグラム
     elif graph == "ヒストグラム":
-        hist_val = st.selectbox('変数を選択',label)
+        hist_val = st.selectbox('変数を選択',X_COLS)
         fig = px.histogram(score, x=hist_val)
         st.plotly_chart(fig, use_container_width=True)
     
     # 箱ひげ図
     elif graph == '箱ひげ図':
-        box_val_y = st.selectbox('箱ひげ図にする変数を選択',label)
+        box_val_y = st.selectbox('箱ひげ図にする変数を選択',X_COLS)
 
         left, right = st.beta_columns(2)
         with left: # 散布図の表示 
@@ -118,9 +122,7 @@ def vis():
 # ---------------- 単回帰分析 ----------------------------------
 def  lr():
     st.title('単回帰分析を使って予測してみよう！')
-
     df = load_full_data()
-    label = d.names
 
     st.sidebar.markdown('## まずはタイプ 1から！')
 
@@ -142,32 +144,29 @@ def  lr():
 
     # 変数を取得してから、単回帰したい
     with st.form('get_lr_data'):
-        y_label = st.selectbox('予測したい変数(目的変数)', label)
-        x_label = st.selectbox('予測に使いたい変数(説明変数)', label)
+        y_label = st.selectbox('予測したい変数(目的変数)', X_COLS)
+        x_label = st.selectbox('予測に使いたい変数(説明変数)', X_COLS)
 
-        # 関数でtrainとtestをsplit
-        # df_train, df_test = d.split_train_test(filtered_df)
-        # y_train = df_train[[y_label]]
-        # y_test = df_test[[y_label]]
-        # X_train = df_train[[x_label]]
-        # X_test = df_test[[x_label]]
-        # テストデータあり: 一旦番号で区切る
-        # y_train = filtered_df[[y_label]].iloc[:-20,:]
-        # y_test = filtered_df[[y_label]].iloc[-20:,:]
-        # X_train = filtered_df[[x_label]].iloc[:-20,:]
-        # X_test = filtered_df[[x_label]].iloc[-20:,:]
+        # trainとtestをsplit
+        df_train = pd.concat([filtered_df[filtered_df.no < TEST_START_INDEX] , filtered_df[filtered_df.no > TEST_END_INDEX]])
+        df_test = pd.concat([filtered_df[TEST_START_INDEX <= filtered_df.no] , filtered_df[filtered_df.no <= TEST_END_INDEX]])
+
+        y_train = df_train[[y_label]]
+        y_test = df_test[[y_label]]
+        X_train = df_train[[x_label]]
+        X_test = df_test[[x_label]]
         # テストデータなし
-        y = df[[y_label]]
-        X = df[[x_label]]
+        # y = df[[y_label]]
+        # X = df[[x_label]]
 
         submitted = st.form_submit_button("分析スタート")
 
         if submitted:
             # モデルの構築
             model_lr = LinearRegression()
-            model_lr.fit(X, y)
-            # model_lr.fit(X_train, y_train)
-            # y_pred = model_lr.predict(X_test)
+            # model_lr.fit(X, y)
+            model_lr.fit(X_train, y_train)
+            y_pred = model_lr.predict(X_test)
 
             # 結果の出力
             if model_lr.intercept_ < 0:
@@ -175,8 +174,7 @@ def  lr():
             else:
                 st.write('y= %.3fx + %.3f' % (model_lr.coef_ , model_lr.intercept_))
 
-            # st.write('決定係数 R^2： %.2f' % r2_score(y_test, y_pred))
-            st.write('決定係数 R^2： %.2f' % model_lr.score(X, y))
+            st.write('平方2乗誤差： %.2f' % np.sqrt(mean_squared_error(y_test, y_pred)))
 
             # グラフの描画
             fig = px.scatter(

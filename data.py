@@ -31,16 +31,6 @@ def pick_up_df(df, genre):
         gender = elem[2]
         ans = ans.append(df[(df['学年'] == grade) & (df['性別'] == gender)])
 
-
-# scoreでの高1女子のデータ：409~589
-# テストデータは、ここから20件とる
-def split_train_test(df):
-    # 加工を加えない生データ score
-    test = df.iloc[500: 521,:]
-    train  = pd.concat([df.iloc[:500, :], df.iloc[521:, :] ])
-    return train, test
-
-
 # ジャンルに応じてデータをフィルタリングして返す
 def load_filtered_data(data, genre_filter):
     if genre_filter == "女子":
