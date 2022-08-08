@@ -62,7 +62,7 @@ def vis():
     )
 
     if  graph  == '散布図':
-        left, right = st.beta_columns(2)
+        left, right = st.columns(2)
 
         with left: # 散布図の表示 
             x_label = st.selectbox('横軸を選択',X_COLS)
@@ -109,7 +109,7 @@ def vis():
     elif graph == '箱ひげ図':
         box_val_y = st.selectbox('箱ひげ図にする変数を選択',X_COLS)
 
-        left, right = st.beta_columns(2)
+        left, right = st.columns(2)
         with left: # 散布図の表示 
             fig = px.box(full_data, x='学年', y=box_val_y, )
             st.plotly_chart(fig, use_container_width=True)
