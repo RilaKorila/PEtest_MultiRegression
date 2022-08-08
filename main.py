@@ -120,7 +120,7 @@ def vis():
 
 # ---------------- 単回帰分析 ----------------------------------
 def  lr():
-    st.title('単回帰分析を使って予測してみよう！')
+    st.title('回帰分析を使って予測してみよう！')
     df = load_full_data()
 
     st.sidebar.markdown('## まずはタイプ 1から！')
@@ -141,10 +141,10 @@ def  lr():
     else:
         filtered_df = d.load_filtered_data(df, "高1女子")
 
-    # 変数を取得してから、単回帰したい
+    # 変数を取得してから、回帰したい
     with st.form('get_lr_data'):
         y_label = st.selectbox('予測したい変数(目的変数)', X_COLS)
-        x_label = st.selectbox('予測に使いたい変数(説明変数)', X_COLS)
+        x_labels = st.multiselect('予測に使いたい変数(説明変数)', X_COLS)
 
         # trainとtestをsplit
         df_train = pd.concat([filtered_df[filtered_df.no < TEST_START_INDEX] , filtered_df[filtered_df.no > TEST_END_INDEX]])
@@ -152,8 +152,8 @@ def  lr():
 
         y_train = df_train[[y_label]]
         y_test = df_test[[y_label]]
-        X_train = df_train[[x_label]]
-        X_test = df_test[[x_label]]
+        X_train = df_train[x_labels]
+        X_test = df_test[x_labels]
         # テストデータなし
         # y = df[[y_label]]
         # X = df[[x_label]]
@@ -163,22 +163,11 @@ def  lr():
         if submitted:
             # モデルの構築
             model_lr = LinearRegression()
-            # model_lr.fit(X, y)
             model_lr.fit(X_train, y_train)
             y_pred = model_lr.predict(X_test)
 
-            # 結果の出力
-            if model_lr.intercept_ < 0:
-                st.write('y= %.3fx - %.3f' % (model_lr.coef_ , -1*(model_lr.intercept_)))
-            else:
-                st.write('y= %.3fx + %.3f' % (model_lr.coef_ , model_lr.intercept_))
-
-            st.write('平方2乗誤差： %.2f' % np.sqrt(mean_squared_error(y_test, y_pred)))
-
             # グラフの描画
-            fig = px.scatter(
-            x=filtered_df[x_label].values, y=filtered_df[y_label].values,
-            labels={'x':x_label, 'y':y_label},trendline='ols', trendline_color_override='red')
+            plot_y = list(map(lambda y: y[0], y_pred))
+            fig = px.scatter(x=y_test[y_label].values, y=plot_y, labels={'x':"実測値", 'y':"予測値"})
             st.plotly_chart(fig, use_container_width=True)
-
 main()
